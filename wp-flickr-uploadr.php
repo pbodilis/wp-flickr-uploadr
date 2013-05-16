@@ -1,13 +1,13 @@
 <?php
 /*
 Plugin Name: wp-flickr-uploadr
-Plugin URI: http://rataki.eu/
+Plugin URI: https://github.com/pbodilis/wp-flickr-uploadr
 Description: uploads any 'image' post from your wordpress instance to flickr using email and your flickr API key.
 Version: 0.1
-Author: Trent Gardner
-Author URI: http://tgardner.net/
+Author: Pierre Bodilis
+Author URI: http://rataki.eu/
 
-Copyright 2007  Trent Gardner  (email : trent.gardner@gmail.com)
+Copyright 2013  Pierre Bodilis (email : pierre.bodilis+github@gmail.com)
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
