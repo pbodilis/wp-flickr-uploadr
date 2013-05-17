@@ -24,11 +24,10 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-
-
 class flickr_uploadr {
     const GROUP = 'flickr_uploadr_option_group';
     const EMAIL_OPTION_NAME = 'flickr_uploadr_email';
+    const UPLOAD_TO_FLICKR_ACTION = 'upload_to_flickr';
 
     public function __construct() {
         if (is_admin()) {
@@ -40,7 +39,34 @@ class flickr_uploadr {
             add_action('admin_footer-edit.php', array(&$this, 'custom_bulk_admin_footer'));
             add_action('load-edit.php',         array(&$this, 'custom_bulk_action'));
             add_action('admin_notices',         array(&$this, 'custom_bulk_admin_notices'));
+
+            // add action upload to flickr
+            add_filter('post_row_actions',      array(&$this, 'add_flickr_uploadr_action_row'), 10, 2);
+            add_action('post.php',              array(&$this, 'upload_to_flickr'));
         }
+    }
+
+    /**
+     * Add the "Upload to flickr" option to the bulk action dropdown menu
+     */
+    function custom_bulk_admin_footer() {
+        global $post_type;
+
+        if($post_type == 'post') {
+            ?>
+                <script type="text/javascript">
+                    jQuery(document).ready(function() {
+                        jQuery('<option>').val('export').text('<?php _e('Upload to flickr')?>').appendTo("select[name='action']");
+                        jQuery('<option>').val('export').text('<?php _e('Upload to flickr')?>').appendTo("select[name='action2']");
+                    });
+                </script>
+            <?php
+        }
+    }
+
+    function add_flickr_uploadr_action_row($actions, $post) {
+        $actions['flickr_uploadr'] = '<a href="' . admin_url('upload-to-flickr.php?post=' . $post->ID) . '">' . __('Upload to flickr') . '</a>';
+        return $actions;
     }
 
     public function add_plugin_menu() {
@@ -100,25 +126,6 @@ class flickr_uploadr {
 
     public function get_id_field(){
         echo '<input type="text" id="' . self::EMAIL_OPTION_NAME .'" name="' . self::EMAIL_OPTION_NAME . '" value="' . get_option(self::EMAIL_OPTION_NAME) . '" />';
-    }
-
-
-    /**
-        * Step 1: add the custom Bulk Action to the select menus
-        */
-    function custom_bulk_admin_footer() {
-        global $post_type;
-
-        if($post_type == 'post') {
-            ?>
-                <script type="text/javascript">
-                    jQuery(document).ready(function() {
-                        jQuery('<option>').val('export').text('<?php _e('Export')?>').appendTo("select[name='action']");
-                        jQuery('<option>').val('export').text('<?php _e('Export')?>').appendTo("select[name='action2']");
-                    });
-                </script>
-            <?php
-        }
     }
 
 
