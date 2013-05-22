@@ -151,19 +151,18 @@ class flickr_uploadr {
             check_admin_referer('bulk-posts');
 
             // make sure ids are submitted.  depending on the resource type, this may be 'media' or 'ids'
-            if(isset($_REQUEST['post'])) {
+            if (isset($_REQUEST['post'])) {
                 $post_ids = array_map('intval', $_REQUEST['post']);
             }
 
-            if(empty($post_ids)) return;
+            if (empty($post_ids)) return;
 
             // this is based on wp-admin/edit.php
-            $sendback = remove_query_arg( array('exported', 'untrashed', 'deleted', 'ids'), wp_get_referer() );
-            if ( ! $sendback )
-                $sendback = admin_url( "edit.php?post_type=$post_type" );
+            $sendback = remove_query_arg(array('exported', 'untrashed', 'deleted', 'ids'), wp_get_referer());
+            if (!$sendback) $sendback = admin_url( "edit.php?post_type=$post_type" );
 
             $pagenum = $wp_list_table->get_pagenum();
-            $sendback = add_query_arg( 'paged', $pagenum, $sendback );
+            $sendback = add_query_arg('paged', $pagenum, $sendback);
 
             switch($action) {
                 case 'export':
@@ -173,11 +172,9 @@ class flickr_uploadr {
                     //  wp_die( __('You are not allowed to export this post.') );
 
                     $exported = 0;
-                    foreach( $post_ids as $post_id ) {
-
-                        if ( !$this->perform_export($post_id) )
+                    foreach ($post_ids as $post_id) {
+                        if (!$this->perform_export($post_id))
                             wp_die( __('Error exporting post.') );
-
                         $exported++;
                     }
 
@@ -208,8 +205,37 @@ class flickr_uploadr {
     }
 
     function perform_export($post_id) {
-        // do whatever work needs to be done
-        return true;
+        $format = get_post_format($post_id);
+        if ($format !== 'image') {
+            return true;
+        }
+        $post = get_post($post_id);
+
+        $args = array(
+            'order'          => 'ASC',
+            'post_mime_type' => 'image',
+            'post_parent'    => $post_id,
+            'post_status'    => null,
+            'post_type'      => 'attachment'
+        );
+        $attachments = get_children( $args );
+        foreach($attachments as $attachment) {
+            $mail_attachments[] = get_attached_file($attachment->ID);
+        }
+        $to = get_option(self::EMAIL_OPTION_NAME);
+
+        $content = $post->post_content;
+        $content = preg_replace('/<a[^>]+\>/', '', $content);
+        $content = preg_replace('/<p[^>]*>[\s|&nbsp;]*<\/p>/', '', $content);
+        $content = '<a href="' . get_permalink($post->ID) . '">visit my blog!</a>' . "\n\n" . $content;
+
+        return wp_mail(
+            $to,
+            $post->post_title,
+            $content,
+            null,
+            $mail_attachments
+        );
     }
 }
 
