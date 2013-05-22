@@ -219,9 +219,7 @@ class flickr_uploadr {
             'post_type'      => 'attachment'
         );
         $attachments = get_children( $args );
-        foreach($attachments as $attachment) {
-            $mail_attachments[] = get_attached_file($attachment->ID);
-        }
+
         $to = get_option(self::EMAIL_OPTION_NAME);
 
         $content = $post->post_content;
@@ -229,13 +227,17 @@ class flickr_uploadr {
         $content = preg_replace('/<p[^>]*>[\s|&nbsp;]*<\/p>/', '', $content);
         $content = '<a href="' . get_permalink($post->ID) . '">visit my blog!</a>' . "\n\n" . $content;
 
-        return wp_mail(
-            $to,
-            $post->post_title,
-            $content,
-            null,
-            $mail_attachments
-        );
+        foreach($attachments as $attachment) {
+            wp_mail(
+                $to,
+                $post->post_title,
+                $content,
+                null,
+                get_attached_file($attachment->ID)
+            );
+        }
+
+        return true;
     }
 }
 
