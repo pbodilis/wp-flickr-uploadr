@@ -222,9 +222,8 @@ class flickr_uploadr {
 
         $to = get_option(self::EMAIL_OPTION_NAME);
 
-        $content = $post->post_content;
-        $content = preg_replace('/<a[^>]+\>/', '', $content);
-        $content = preg_replace('/<p[^>]*>[\s|&nbsp;]*<\/p>/', '', $content);
+        $content = apply_filters('the_content', $post->post_content);
+        $content = substr($content, strpos($content, '<!--more-->') + strlen('<!--more-->'));
         $content = '<a href="' . get_permalink($post->ID) . '">visit my blog!</a>' . "\n\n" . $content;
 
         foreach($attachments as $attachment) {
@@ -232,7 +231,7 @@ class flickr_uploadr {
                 $to,
                 $post->post_title,
                 $content,
-                null,
+                '',
                 get_attached_file($attachment->ID)
             );
         }
