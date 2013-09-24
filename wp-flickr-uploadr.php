@@ -41,8 +41,8 @@ class flickr_uploadr {
             add_action('admin_notices',         array(&$this, 'custom_bulk_admin_notices'));
 
             // add action upload to flickr
-            add_filter('post_row_actions',      array(&$this, 'add_flickr_uploadr_action_row'), 10, 2);
-            add_action('post.php',              array(&$this, 'upload_to_flickr'));
+//             add_filter('post_row_actions',      array(&$this, 'add_flickr_uploadr_action_row'), 10, 2);
+//             add_action('post.php',              array(&$this, 'upload_to_flickr'));
         }
     }
 
